@@ -60,10 +60,17 @@ background_main(Datum main_arg)
 		int rc;
 
 		/* Wait 10s */
+#if (PG_VERSION_NUM >= 100000)
 		rc = WaitLatch(&MyProc->procLatch,
 					   WL_LATCH_SET | WL_TIMEOUT | WL_POSTMASTER_DEATH,
 					   10000L,
 					   PG_WAIT_EXTENSION);
+#else
+		rc = WaitLatch(&MyProc->procLatch,
+					   WL_LATCH_SET | WL_TIMEOUT | WL_POSTMASTER_DEATH,
+					   10000L);
+#endif
+
 		ResetLatch(&MyProc->procLatch);
 
 		/* Emergency bailout if postmaster has died */
