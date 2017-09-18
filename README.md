@@ -22,3 +22,9 @@ export PATH=/usr/lib/postgresql/9.6/bin:$PATH
 ```
 shared_preload_libraries = 'go_brackground_worker'
 ```
+
+## Bug report/New feature
+
+[Issues](https://github.com/prest/prest/issues)
+
+Set **bgworker: your title** on issue title
