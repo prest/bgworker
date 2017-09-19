@@ -2,14 +2,13 @@ package main
 
 /*
 extern void BackgroundWorkerMain();
-void elog_log(char *string);
 */
 import "C"
+import "github.com/prest/bgworker/pg/log"
 
 func main() {}
 
 //export BackgroundWorkerMain
-func BackgroundWorkerMain(){
-	C.elog_log(C.CString("Hello World from GoLang!!! Yeahhhhh!!!!"));
+func BackgroundWorkerMain() {
+	log.Info("Hello World from GoLang!!! Yeahhhhh!!!!")
 }
-
