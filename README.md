@@ -20,7 +20,7 @@ export PATH=/usr/lib/postgresql/9.6/bin:$PATH
 ## PostgreSQL Config (postgresql.conf)
 
 ```
-shared_preload_libraries = 'go_brackground_worker'
+shared_preload_libraries = 'go_background_worker'
 ```
 
 ## Bug report/New feature
