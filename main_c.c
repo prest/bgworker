@@ -24,8 +24,27 @@ void elog_log(char *string) {
 	elog(LOG, string, "");
 }
 
+int wait_latch(long miliseconds) {
+	return WaitLatch(&MyProc->procLatch,
+					 WL_LATCH_SET | WL_TIMEOUT | WL_POSTMASTER_DEATH,
+					 miliseconds,
+					 PG_WAIT_EXTENSION);
+}
+
+void reset_latch(void) {
+	ResetLatch(&MyProc->procLatch);
+}
+
+int postmaster_is_dead(int rc) {
+	return (rc & WL_POSTMASTER_DEATH);
+}
+
 /* Signal handling */
 static volatile sig_atomic_t got_sigterm = false;
+
+int get_got_sigterm() {
+	return (got_sigterm == true);
+}
 
 /*
  * background_sigterm
@@ -55,31 +74,12 @@ background_main(Datum main_arg)
 
 	/* We're now ready to receive signals */
 	BackgroundWorkerUnblockSignals();
-	while (!got_sigterm)
-	{
-		int rc;
 
-		/* Wait 10s */
-#if (PG_VERSION_NUM >= 100000)
-		rc = WaitLatch(&MyProc->procLatch,
-					   WL_LATCH_SET | WL_TIMEOUT | WL_POSTMASTER_DEATH,
-					   10000L,
-					   PG_WAIT_EXTENSION);
-#else
-		rc = WaitLatch(&MyProc->procLatch,
-					   WL_LATCH_SET | WL_TIMEOUT | WL_POSTMASTER_DEATH,
-					   10000L);
-#endif
-
-		ResetLatch(&MyProc->procLatch);
-
-		/* Emergency bailout if postmaster has died */
-		if (rc & WL_POSTMASTER_DEATH)
-			proc_exit(1);
-
-		BackgroundWorkerMain();
-
+	/* Main loop in Golang */
+	if (BackgroundWorkerMain()) {
+		proc_exit(1);
 	}
+
 	proc_exit(0);
 }
 
